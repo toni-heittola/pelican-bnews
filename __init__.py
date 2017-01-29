@@ -1,0 +1,1 @@
+from .bnews import *

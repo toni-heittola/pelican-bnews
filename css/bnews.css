@@ -1,0 +1,21 @@
+.bnews-container .list-group-item{
+    border: none !important;
+    background-color: transparent !important;
+}
+.bnews-container .list-group-item:focus, .bnews-container .list-group-item:hover{
+    background-color: #EEE !important;
+}
+
+.bnews-container .list-group-item{
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+.panel .bnews-container .list-group-item{
+    padding: 5px 10px;
+}
+
+.bnews-container .small {
+    font-size: 85%;
+}
