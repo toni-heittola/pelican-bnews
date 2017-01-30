@@ -104,15 +104,16 @@ def generate_listing(settings):
         else:
             break
     html += "\n"
-
-    template = Template(settings['template'][settings['mode']].strip('\t\r\n').replace('&gt;', '>').replace('&lt;', '<'))
-    div_html = BeautifulSoup(template.render(news_list=html,
-                                             header=settings['header'],
-                                             site_url=settings['site-url'],
-                                             headerlink=settings['header-link'],
-                                             panel_color=settings['panel-color']), "html.parser")
-    return div_html
-
+    if count:
+        template = Template(settings['template'][settings['mode']].strip('\t\r\n').replace('&gt;', '>').replace('&lt;', '<'))
+        div_html = BeautifulSoup(template.render(news_list=html,
+                                                 header=settings['header'],
+                                                 site_url=settings['site-url'],
+                                                 headerlink=settings['header-link'],
+                                                 panel_color=settings['panel-color']), "html.parser")
+        return div_html
+    else:
+        return ''
 
 def generate_item(article, settings):
     current_datetime = datetime.datetime.now()
