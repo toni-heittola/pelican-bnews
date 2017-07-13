@@ -22,10 +22,7 @@
     font-size: 70%;
 }
 
-.bnews-container h4.list-group-item-heading {
-    font-weight: 400;
-    color: #555555
-}
+.bnews-container h4.list-group-item-heading {}
 
 .bnews-container .small {
     font-size: 85%;
