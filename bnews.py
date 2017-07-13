@@ -143,7 +143,13 @@ def generate_listing(settings):
 
 def generate_item(article, settings):
     current_datetime = datetime.datetime.now()
-    article_datetime = datetime.datetime(year=article.date.year, day=article.date.day, month=article.date.month)
+    article_datetime = datetime.datetime(
+        year=article.date.year,
+        day=article.date.day,
+        month=article.date.month,
+        hour=article.date.hour,
+        minute=article.date.minute
+    )
 
     date_label = article_datetime #format_timedelta(current_datetime - article_datetime, format='medium', locale='en') + ' ago'
 
