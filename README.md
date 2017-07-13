@@ -134,10 +134,11 @@ Article listing is available in template in variable `page.bnews` or `article.bn
 | data-category             | cat1, cat2 | Show only articles from specified categories (comma separated), if empty all categories shown |
 | data-count                | 2 | Count of most recent articles shown |
 | data-show-categories      | True | Show category label |
+| data-show-summary         | False | Show news summary, use summary meta label | 
 | data-panel-color          | panel-info | CSS class used to color the panel template in the default template. Possible values: panel-default, panel-primary, panel-success, panel-info, panel-warning, panel-danger |
 Example listing:
 
-    <div class="bnews" data-category="category1" data-mode="list" data-header="Recent News"></div>
+    <div class="bnews" data-category="category1" data-mode="list" data-header="Recent News" data-show-summary="True"></div>
         
 Example with meta fields:     
 

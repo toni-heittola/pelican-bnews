@@ -45,16 +45,37 @@ bnews_default_settings = {
         'panel': """
             <a class="list-group-item" href="{{ site_url}}/{{ article_url}}">
             <div class="row">
-            <div class="col-md-12 col-sm-12"><h5 class="list-group-item-heading">{{article_title}}</h5></div>
-            <div class="col-md-12 col-sm-12"><p class="list-group-item-text text-muted">{{article_category}} {{article_date}}</p></div>
+                <div class="col-md-12 col-sm-12"><h5 class="list-group-item-heading">{{article_title}}</h5></div>
+                <div class="col-md-12 col-sm-12">
+                <p class="list-group-item-text text-muted">{{article_category}}
+                {% if article_date %}<small><span class="bnews-time" datetime="{{article_date}}"></span><small>{% endif %}
+                </p>
+                </div>
             </div>
             </a>
         """,
         'list': """
             <a class="list-group-item" href="{{ site_url}}/{{ article_url}}">
             <div class="row">
-            <div class="col-md-12 col-sm-12"><h4 class="list-group-item-heading">{{article_title}}</h4></div>
-            <div class="col-md-12 col-sm-12"><p class="list-group-item-text text-muted">{{article_category}} {{article_date}}</p></div>
+                <div class="col-md-12 col-sm-12">
+                    <h4 class="list-group-item-heading">
+                    {% if article_date and not article_category%}
+                    <span class="bnews-time pull-right text-muted" datetime="{{article_date}}"></span>
+                    {% endif %}
+                    {{article_title}}
+                    </h4>
+                </div>
+                <div class="col-md-12 col-sm-12">
+                <p class="list-group-item-text text-muted">
+                {{article_category}}
+                {% if article_category and article_date %}
+                <span class="bnews-time pull-right" datetime="{{article_date}}"></span>
+                {% endif %}
+                </p>
+                </div>
+                {% if article_summary %}
+                <div class="col-md-12 col-sm-12 bnews-summary">{{article_summary}}</div>
+                {% endif %}
             </div>
             </a>
         """},
@@ -66,6 +87,7 @@ bnews_default_settings = {
     'show-categories': False,
     'shorten-category-label': True,
     'category-label-css': {},
+    'show-summary': False,
     'site-url': '',
     'template-variable': False,
     'articles': None
@@ -92,8 +114,9 @@ def get_attribute(attrs, name, default=None):
 def generate_listing(settings):
     count = 0
     html = "\n"
+
     for article_id, article in enumerate(settings['articles']):
-        if count < bnews_settings['count']:
+        if count < settings['count']:
             if settings['category']:
                 if article.category.name in settings['category']:
                     html += generate_item(article=article, settings=settings) + "\n"
@@ -103,7 +126,9 @@ def generate_listing(settings):
                 count += 1
         else:
             break
+
     html += "\n"
+
     if count:
         template = Template(settings['template'][settings['mode']].strip('\t\r\n').replace('&gt;', '>').replace('&lt;', '<'))
         div_html = BeautifulSoup(template.render(news_list=html,
@@ -115,11 +140,12 @@ def generate_listing(settings):
     else:
         return ''
 
+
 def generate_item(article, settings):
     current_datetime = datetime.datetime.now()
     article_datetime = datetime.datetime(year=article.date.year, day=article.date.day, month=article.date.month)
 
-    date_label = format_timedelta(current_datetime - article_datetime, format='medium', locale='en') + ' ago'
+    date_label = article_datetime #format_timedelta(current_datetime - article_datetime, format='medium', locale='en') + ' ago'
 
     if settings['show-categories']:
         if article.category.name.lower() in settings['category-label-css']:
@@ -134,12 +160,18 @@ def generate_item(article, settings):
     else:
         category_label = ''
 
+    if settings['show-summary']:
+        summary = article.summary
+    else:
+        summary = None
+
     template = Template(settings['item-template'][settings['mode']].strip('\t\r\n').replace('&gt;', '>').replace('&lt;', '<'))
     html = BeautifulSoup(template.render(site_url=settings['site-url'],
                                          article_url=article.url,
                                          article_title=article.title,
                                          article_date=date_label,
                                          article_category=category_label,
+                                         article_summary=summary,
                                          ), "html.parser")
 
     return html.decode()
@@ -178,12 +210,14 @@ def bnews(content):
             settings['category'] = get_attribute(bnews_div.attrs, 'category', bnews_settings['category'])
             if settings['category']:
                 settings['category'] = bnews_settings['category'].split(',')
+
             settings['count'] = get_attribute(bnews_div.attrs, 'count', bnews_settings['count'])
             if settings['count']:
                 settings['count'] = int(settings['count'])
 
             settings['panel-color'] = get_attribute(bnews_div.attrs, 'panel-color', bnews_settings['panel-color'])
             settings['show-categories'] = get_attribute(bnews_div.attrs, 'show-categories', bnews_settings['show-categories']) == 'True'
+            settings['show-summary'] = get_attribute(bnews_div.attrs, 'show-summary', bnews_settings['show-summary']) == 'True'
 
             div_html = generate_listing(settings=settings)
             bnews_div.replaceWith(div_html)
@@ -192,12 +226,20 @@ def bnews(content):
 
         if bnews_settings['minified']:
             html_elements = {
+                'js_include': [
+                    '<script type="text/javascript" src="' + bnews_settings['site-url'] + '/theme/js/timeago.min.js"></script>',
+                    '<script type="text/javascript" src="' + bnews_settings['site-url'] + '/theme/js/bnews.min.js"></script>'
+                ],
                 'css_include': [
                     '<link rel="stylesheet" href="' + bnews_settings['site-url'] + '/theme/css/bnews.min.css">'
                 ]
             }
         else:
             html_elements = {
+                'js_include': [
+                    '<script type="text/javascript" src="' + bnews_settings['site-url'] + '/theme/js/timeago.js"></script>',
+                    '<script type="text/javascript" src="' + bnews_settings['site-url'] + '/theme/js/bnews.js"></script>',
+                ],
                 'css_include': [
                     '<link rel="stylesheet" href="' + bnews_settings['site-url'] + '/theme/css/bnews.css">'
                 ]
@@ -205,6 +247,9 @@ def bnews(content):
 
         if u'styles' not in content.metadata:
             content.metadata[u'styles'] = []
+        for element in html_elements['js_include']:
+            if element not in content.metadata[u'scripts']:
+                content.metadata[u'scripts'].append(element)
         for element in html_elements['css_include']:
             if element not in content.metadata[u'styles']:
                 content.metadata[u'styles'].append(element)
@@ -256,6 +301,9 @@ def process_page_metadata(generator, metadata):
     if u'bnews_show_categories' in metadata:
         bnews_settings['show-categories'] = metadata['bnews_show_categories']
 
+    if u'bnews_show_summary' in metadata:
+        bnews_settings['show-summary'] = metadata['bnews_show_summary']
+
 
 def move_resources(gen):
     """
@@ -267,32 +315,54 @@ def move_resources(gen):
     if bnews_settings['minified']:
         if bnews_settings['generate_minified']:
             minify_css_directory(gen=gen, source='css', target='css.min')
+            minify_js_directory(gen=gen, source='js', target='js.min')
 
         css_target = os.path.join(gen.output_path, 'theme', 'css', 'bnews.min.css')
         if not os.path.exists(os.path.join(gen.output_path, 'theme', 'css')):
             os.makedirs(os.path.join(gen.output_path, 'theme', 'css'))
 
+        js_target_1 = os.path.join(gen.output_path, 'theme', 'js', 'timeago.min.js')
+        js_target_2 = os.path.join(gen.output_path, 'theme', 'js', 'bnews.min.js')
+        if not os.path.exists(os.path.join(gen.output_path, 'theme', 'js')):
+            os.makedirs(os.path.join(gen.output_path, 'theme', 'js'))
+
         for path in plugin_paths:
             css_source = os.path.join(path, 'pelican-bnews', 'css.min', 'bnews.min.css')
-
             if os.path.isfile(css_source):
                 shutil.copyfile(css_source, css_target)
 
-            if os.path.isfile(css_target):
+            js_source_1 = os.path.join(path, 'pelican-bnews', 'js.min', 'timeago.min.js')
+            js_source_2 = os.path.join(path, 'pelican-bnews', 'js.min', 'bnews.min.js')
+
+            if os.path.isfile(js_source_1):
+                shutil.copyfile(js_source_1, js_target_1)
+            if os.path.isfile(js_source_2):
+                shutil.copyfile(js_source_2, js_target_2)
+
+            if os.path.isfile(css_target) and os.path.isfile(js_target_1) and os.path.isfile(js_target_2):
                 break
     else:
         css_target = os.path.join(gen.output_path, 'theme', 'css', 'bnews.css')
         if not os.path.exists(os.path.join(gen.output_path, 'theme', 'css')):
             os.makedirs(os.path.join(gen.output_path, 'theme', 'css'))
 
+        js_target_1 = os.path.join(gen.output_path, 'theme', 'js', 'timeago.js')
+        js_target_2 = os.path.join(gen.output_path, 'theme', 'js', 'bnews.js')
         for path in plugin_paths:
-            print path
             css_source = os.path.join(path, 'pelican-bnews', 'css', 'bnews.css')
 
             if os.path.isfile(css_source):
                 shutil.copyfile(css_source, css_target)
 
-            if os.path.isfile(css_target):
+            js_source_1 = os.path.join(path, 'pelican-bnews', 'js', 'timeago.js')
+            js_source_2 = os.path.join(path, 'pelican-bnews', 'js', 'bnews.js')
+            if os.path.isfile(js_source_1):
+                shutil.copyfile(js_source_1, js_target_1)
+
+            if os.path.isfile(js_source_2):
+                shutil.copyfile(js_source_2, js_target_2)
+
+            if os.path.isfile(css_target) and os.path.isfile(js_target_1) and os.path.isfile(js_target_2):
                 break
 
 
@@ -319,6 +389,32 @@ def minify_css_directory(gen, source, target):
                         with open(current_file_path) as css_file:
                             with open(os.path.join(target_, current_file.replace('.css', '.min.css')), "w") as minified_file:
                                 minified_file.write(rcssmin.cssmin(css_file.read(), keep_bang_comments=True))
+
+
+def minify_js_directory(gen, source, target):
+    """
+    Move JS resources from source directory to target directory and minify.
+
+    """
+
+    from jsmin import jsmin
+
+    plugin_paths = gen.settings['PLUGIN_PATHS']
+    for path in plugin_paths:
+        source_ = os.path.join(path, 'pelican-bnews', source)
+        target_ = os.path.join(path, 'pelican-bnews', target)
+
+        if os.path.isdir(source_):
+            if not os.path.exists(target_):
+                os.makedirs(target_)
+
+            for root, dirs, files in os.walk(source_):
+                for current_file in files:
+                    if current_file.endswith(".js"):
+                        current_file_path = os.path.join(root, current_file)
+                        with open(current_file_path) as js_file:
+                            with open(os.path.join(target_, current_file.replace('.js', '.min.js')), "w") as minified_file:
+                                minified_file.write(jsmin(js_file.read()))
 
 
 def get_articles(generator):
