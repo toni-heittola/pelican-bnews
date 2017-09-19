@@ -21,7 +21,7 @@ __version__ = '0.1.0'
 
 bnews_default_settings = {
     'header': 'News',
-    'header-link': '/news.html',
+    'header-link': 'news',
     'panel-color': 'panel-default',
     'mode': 'panel',
     'template': {
@@ -134,7 +134,7 @@ def generate_listing(settings):
         div_html = BeautifulSoup(template.render(news_list=html,
                                                  header=settings['header'],
                                                  site_url=settings['site-url'],
-                                                 headerlink=settings['header-link'],
+                                                 header_link=settings['header-link'],
                                                  panel_color=settings['panel-color']), "html.parser")
         return div_html
     else:
@@ -444,6 +444,9 @@ def init_default_config(pelican):
     bnews_default_settings['site-url'] = pelican.settings['SITEURL']
     if 'BNEWS_HEADER' in pelican.settings:
         bnews_default_settings['header'] = pelican.settings['BNEWS_HEADER']
+
+    if 'BNEWS_HEADER_LINK' in pelican.settings:
+        bnews_default_settings['header-link'] = pelican.settings['BNEWS_HEADER_LINK']
 
     if 'BNEWS_TEMPLATE' in pelican.settings:
         bnews_default_settings['template'].update(pelican.settings['BNEWS_TEMPLATE'])

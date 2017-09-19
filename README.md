@@ -90,6 +90,7 @@ Parameters for the plugin can be set in `pelicanconf.py' with following paramete
 | Parameter                 | Type      | Default       | Description  |
 |---------------------------|-----------|---------------|--------------|
 | BNEWS_HEADER              | String    | Content       | Header text  |
+| BNEWS_HEADER_LINK         | String    | news         | Header link  |
 | BNEWS_TEMPLATE            | Dict of Jinja2 templates |  | Two templates can be set for panel and list  |
 | BNEWS_ITEM_TEMPLATE       | Dict of Jinja2 templates |  | Two templates can be set for panel and list  |
 | BNEWS_PANEL_COLOR         | String    | panel-primary |  CSS class used to color the panel template in the default template. Possible values: panel-default, panel-primary, panel-success, panel-info, panel-warning, panel-danger |
