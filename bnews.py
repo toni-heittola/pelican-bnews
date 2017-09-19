@@ -28,7 +28,7 @@ bnews_default_settings = {
         'panel': """
             <div class="panel {{ panel_color }} hidden-print">
               <div class="panel-heading">
-                <h3 class="panel-title"><a href="{{ site_url }}{{header_link}}">{{header}}</a></h3>
+                <h3 class="panel-title"><a href="{{ site_url }}/{{header_link}}">{{header}}</a></h3>
               </div>
               <ul class="bnews-container list-group">
               {{news_list}}
@@ -36,7 +36,7 @@ bnews_default_settings = {
             </div>
         """,
         'list': """
-            <h3 class="section-heading text-center"><a href="{{ site_url }}{{header_link}}">{{header}}</a></h3>
+            <h3 class="section-heading text-center"><a href="{{ site_url }}/{{header_link}}">{{header}}</a></h3>
             <div class="list-group bnews-container">
             {{news_list}}
             </div>
