@@ -10,6 +10,9 @@ import os
 import shutil
 import logging
 import copy
+import yaml
+import time
+import collections
 from bs4 import BeautifulSoup
 from jinja2 import Template
 from pelican import signals, contents
@@ -43,7 +46,7 @@ bnews_default_settings = {
         """},
     'item-template': {
         'panel': """
-            <a class="list-group-item" href="{{ site_url}}/{{ article_url}}">
+            <a class="list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
             <div class="row">
                 <div class="col-md-12 col-sm-12"><h5 class="list-group-item-heading">{{article_title}}</h5></div>
                 <div class="col-md-12 col-sm-12">
@@ -55,7 +58,7 @@ bnews_default_settings = {
             </a>
         """,
         'list': """
-            <a class="list-group-item" href="{{ site_url}}/{{ article_url}}">
+            <a class="list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
             <div class="row">
                 <div class="col-md-12 col-sm-12">
                     <h4 class="list-group-item-heading">
@@ -96,6 +99,22 @@ bnews_default_settings = {
 bnews_settings = copy.deepcopy(bnews_default_settings)
 
 
+def boolean(value):
+    """Conversion for yes/no True/False."""
+    if isinstance(value, basestring):
+        if value.lower() in ['yes', 'true', '1', u'yes', u'true', u'1']:
+            return True
+
+        else:
+            return False
+
+    elif isinstance(value, bool):
+        return value
+
+    else:
+        return None
+
+
 def get_attribute(attrs, name, default=None):
     """
     Get div attribute
@@ -118,12 +137,28 @@ def generate_listing(settings):
     for article_id, article in enumerate(settings['articles']):
         if count < settings['count']:
             if settings['category']:
-                if article.category.name in settings['category']:
-                    html += generate_item(article=article, settings=settings) + "\n"
+                if hasattr(article, 'category'):
+                    category = article.category.name
+
+                elif 'category' in article:
+                    category = article['category']
+
+                if category in settings['category']:
+                    html += generate_item(
+                        article=article,
+                        settings=settings
+                    ) + "\n"
+
                     count += 1
+
             else:
-                html += generate_item(article=article, settings=settings) + "\n"
+                html += generate_item(
+                    article=article,
+                    settings=settings
+                ) + "\n"
+
                 count += 1
+
         else:
             break
 
@@ -131,56 +166,129 @@ def generate_listing(settings):
 
     if count:
         template = Template(settings['template'][settings['mode']].strip('\t\r\n').replace('&gt;', '>').replace('&lt;', '<'))
-        div_html = BeautifulSoup(template.render(news_list=html,
-                                                 header=settings['header'],
-                                                 site_url=settings['site-url'],
-                                                 header_link=settings['header-link'],
-                                                 panel_color=settings['panel-color']), "html.parser")
+        div_html = BeautifulSoup(template.render(
+            news_list=html,
+            header=settings['header'],
+            site_url=settings['site-url'],
+            header_link=settings['header-link'],
+            panel_color=settings['panel-color']), "html.parser"
+        )
+
         return div_html
     else:
         return ''
 
 
 def generate_item(article, settings):
-    current_datetime = datetime.datetime.now()
-    article_datetime = datetime.datetime(
-        year=article.date.year,
-        day=article.date.day,
-        month=article.date.month,
-        hour=article.date.hour,
-        minute=article.date.minute
-    )
-
-    date_label = article_datetime #format_timedelta(current_datetime - article_datetime, format='medium', locale='en') + ' ago'
+    if hasattr(article, 'date'):
+        article_datetime = datetime.datetime(
+            year=article.date.year,
+            day=article.date.day,
+            month=article.date.month,
+            hour=article.date.hour,
+            minute=article.date.minute
+        )
+    else:
+        article_datetime = article['date']
 
     if settings['show-categories']:
-        if article.category.name.lower() in settings['category-label-css']:
-            category_label = '<span class="'+settings['category-label-css'][article.category.name.lower()]['label-css']+'">'
+        if hasattr(article, 'category'):
+            label = article.category.name
+
+        elif 'category' in article:
+            label = article['category']
+
+        if label.lower() in settings['category-label-css']:
+            article_category = '<span class="'+settings['category-label-css'][label.lower()]['label-css']+'">'
+
         else:
-            category_label = '<span class="label label-default">'
+            article_category = '<span class="label label-default">'
+
         if settings['shorten-category-label']:
-            category_label += article.category.name[:1].upper()
+            article_category += label[:1].upper()
+
         else:
-            category_label += article.category.name
-        category_label += '</span>'
+            article_category += label
+
+        article_category += '</span>'
+
     else:
-        category_label = ''
+        article_category = ''
 
     if settings['show-summary']:
-        summary = article.summary
+        if hasattr(article, 'summary'):
+            article_summary = article.summary
+
+        elif 'summary' in article:
+            article_summary = article['summary']
+
     else:
-        summary = None
+        article_summary = None
+
+    if hasattr(article, 'url'):
+        article_url = article.url
+
+    elif 'url' in article:
+        article_url = article['url']
+
+    else:
+        article_url = 'javascript:void(0)'
+
+    if 'javascript' in article_url:
+        article_url_target = '_self'
+
+    elif 'http://' in article_url:
+        article_url_target = '_blank'
+
+    else:
+        article_url = settings['site-url'] + '/' + article_url
+        article_url_target = '_self'
+
+    if hasattr(article, 'title'):
+        article_title = article.title
+
+    elif 'title' in article:
+        article_title = article['title']
+
+    else:
+        article_title = None
 
     template = Template(settings['item-template'][settings['mode']].strip('\t\r\n').replace('&gt;', '>').replace('&lt;', '<'))
-    html = BeautifulSoup(template.render(site_url=settings['site-url'],
-                                         article_url=article.url,
-                                         article_title=article.title,
-                                         article_date=date_label,
-                                         article_category=category_label,
-                                         article_summary=summary,
-                                         ), "html.parser")
+    html = BeautifulSoup(template.render(
+        site_url=settings['site-url'],
+        article_url=article_url,
+        article_url_target=article_url_target,
+        article_title=article_title,
+        article_date=article_datetime,
+        article_category=article_category,
+        article_summary=article_summary
+    ), "html.parser")
 
     return html.decode()
+
+
+def load_micro_news(source):
+
+    if source and os.path.isfile(source):
+        try:
+            with open(source, 'r') as field:
+                micro_news_registry = yaml.load(field)
+
+            if 'data' in micro_news_registry:
+                micro_news_registry = micro_news_registry['data']
+
+            # Sort based on date
+            micro_news_registry = sorted(micro_news_registry, key=lambda d: d['date'], reverse=True)
+
+            return micro_news_registry
+
+        except ValueError:
+            logger.warn('`pelican-bnews` failed to load file [' + str(source) + ']')
+            return False
+
+    else:
+        logger.warn('`pelican-bnews` failed to load file [' + str(source) + ']')
+        return False
 
 
 def bnews(content):
@@ -204,9 +312,10 @@ def bnews(content):
         content.bnews = None
 
     bnews_divs = soup.find_all('div', class_='bnews')
+    bnews_micro_divs = soup.find_all('div', class_='bnews-micro')
 
     if bnews_divs:
-        # We have divs in the page
+        # We have divs
         bnews_settings['show'] = True
         for bnews_div in bnews_divs:
             settings = copy.deepcopy(bnews_settings)
@@ -214,8 +323,13 @@ def bnews(content):
             settings['header'] = get_attribute(bnews_div.attrs, 'header', bnews_settings['header'])
             settings['header-link'] = get_attribute(bnews_div.attrs, 'header-link', bnews_settings['header-link'])
             settings['category'] = get_attribute(bnews_div.attrs, 'category', bnews_settings['category'])
+
             if settings['category']:
-                settings['category'] = bnews_settings['category'].split(',')
+                settings['category'] = settings['category'].split(',')
+
+            settings['shorten-category-label'] = boolean(
+                get_attribute(bnews_div.attrs, 'shorten-category-label', bnews_settings['shorten-category-label'])
+            )
 
             settings['count'] = get_attribute(bnews_div.attrs, 'count', bnews_settings['count'])
             if settings['count']:
@@ -227,6 +341,37 @@ def bnews(content):
 
             div_html = generate_listing(settings=settings)
             bnews_div.replaceWith(div_html)
+
+    if bnews_micro_divs:
+        # We have divs for micro news
+        bnews_settings['show'] = True
+        for bnews_micro_div in bnews_micro_divs:
+            settings = copy.deepcopy(bnews_settings)
+            settings['data_source'] = get_attribute(bnews_micro_div.attrs, 'source', None)
+            settings['mode'] = get_attribute(bnews_micro_div.attrs, 'mode', bnews_settings['mode'])
+            settings['header'] = get_attribute(bnews_micro_div.attrs, 'header', bnews_settings['header'])
+            settings['header-link'] = get_attribute(bnews_micro_div.attrs, 'header-link', bnews_settings['header-link'])
+            settings['category'] = get_attribute(bnews_micro_div.attrs, 'category', bnews_settings['category'])
+
+            if settings['category']:
+                settings['category'] = settings['category'].split(',')
+
+            settings['shorten-category-label'] = boolean(
+                get_attribute(bnews_micro_div.attrs, 'shorten-category-label', bnews_settings['shorten-category-label'])
+            )
+
+            settings['count'] = get_attribute(bnews_micro_div.attrs, 'count', bnews_settings['count'])
+            if settings['count']:
+                settings['count'] = int(settings['count'])
+
+            settings['panel-color'] = get_attribute(bnews_micro_div.attrs, 'panel-color', bnews_settings['panel-color'])
+            settings['show-categories'] = get_attribute(bnews_micro_div.attrs, 'show-categories', bnews_settings['show-categories']) == 'True'
+            settings['show-summary'] = get_attribute(bnews_micro_div.attrs, 'show-summary', bnews_settings['show-summary']) == 'True'
+
+            settings['articles'] = load_micro_news(settings['data_source'])
+
+            div_html = generate_listing(settings=settings)
+            bnews_micro_div.replaceWith(div_html)
 
     if bnews_settings['show']:
 
@@ -240,6 +385,7 @@ def bnews(content):
                     '<link rel="stylesheet" href="' + bnews_settings['site-url'] + '/theme/css/bnews.min.css">'
                 ]
             }
+
         else:
             html_elements = {
                 'js_include': [
@@ -253,9 +399,11 @@ def bnews(content):
 
         if u'styles' not in content.metadata:
             content.metadata[u'styles'] = []
+
         for element in html_elements['js_include']:
             if element not in content.metadata[u'scripts']:
                 content.metadata[u'scripts'].append(element)
+
         for element in html_elements['css_include']:
             if element not in content.metadata[u'styles']:
                 content.metadata[u'styles'].append(element)
@@ -282,6 +430,7 @@ def process_page_metadata(generator, metadata):
     if u'bnews' in metadata and (metadata['bnews'] == 'True' or metadata['bnews'] == 'true'):
         bnews_settings['show'] = True
         bnews_settings['template-variable'] = True
+
     else:
         bnews_settings['show'] = False
         bnews_settings['template-variable'] = False
@@ -324,11 +473,13 @@ def move_resources(gen):
             minify_js_directory(gen=gen, source='js', target='js.min')
 
         css_target = os.path.join(gen.output_path, 'theme', 'css', 'bnews.min.css')
+
         if not os.path.exists(os.path.join(gen.output_path, 'theme', 'css')):
             os.makedirs(os.path.join(gen.output_path, 'theme', 'css'))
 
         js_target_1 = os.path.join(gen.output_path, 'theme', 'js', 'timeago.min.js')
         js_target_2 = os.path.join(gen.output_path, 'theme', 'js', 'bnews.min.js')
+
         if not os.path.exists(os.path.join(gen.output_path, 'theme', 'js')):
             os.makedirs(os.path.join(gen.output_path, 'theme', 'js'))
 
@@ -342,6 +493,7 @@ def move_resources(gen):
 
             if os.path.isfile(js_source_1):
                 shutil.copyfile(js_source_1, js_target_1)
+
             if os.path.isfile(js_source_2):
                 shutil.copyfile(js_source_2, js_target_2)
 
@@ -349,6 +501,7 @@ def move_resources(gen):
                 break
     else:
         css_target = os.path.join(gen.output_path, 'theme', 'css', 'bnews.css')
+
         if not os.path.exists(os.path.join(gen.output_path, 'theme', 'css')):
             os.makedirs(os.path.join(gen.output_path, 'theme', 'css'))
 
@@ -362,6 +515,7 @@ def move_resources(gen):
 
             js_source_1 = os.path.join(path, 'pelican-bnews', 'js', 'timeago.js')
             js_source_2 = os.path.join(path, 'pelican-bnews', 'js', 'bnews.js')
+
             if os.path.isfile(js_source_1):
                 shutil.copyfile(js_source_1, js_target_1)
 
