@@ -139,6 +139,7 @@ Article listing is available in template in variable `page.bnews` or `article.bn
 | data-show-summary         | False | Show news summary, use summary meta label | 
 | data-panel-color          | panel-info | CSS class used to color the panel template in the default template. Possible values: panel-default, panel-primary, panel-success, panel-info, panel-warning, panel-danger |
 | data-source               | None | Source to the micro news data file in yaml format. Used only with `bnews-micro` divs |
+| data-shorten-category-label | True | Shorten category label into single letter | 
 
 Example listing:
 
