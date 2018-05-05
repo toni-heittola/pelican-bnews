@@ -93,7 +93,8 @@ bnews_default_settings = {
     'show-summary': False,
     'site-url': '',
     'template-variable': False,
-    'articles': None
+    'articles': None,
+    'debug_processing': False
 }
 
 bnews_settings = copy.deepcopy(bnews_default_settings)
@@ -315,6 +316,13 @@ def bnews(content):
     bnews_micro_divs = soup.find_all('div', class_='bnews-micro')
 
     if bnews_divs:
+        if bnews_settings['debug_processing']:
+            logger.debug(msg='[{plugin_name}] title:[{title}] divs:[{div_count}]'.format(
+                plugin_name='bnews',
+                title=content.title,
+                div_count=len(bnews_divs)
+            ))
+
         # We have divs
         bnews_settings['show'] = True
         for bnews_div in bnews_divs:
@@ -343,6 +351,13 @@ def bnews(content):
             bnews_div.replaceWith(div_html)
 
     if bnews_micro_divs:
+        if bnews_settings['debug_processing']:
+            logger.debug(msg='[{plugin_name}] title:[{title}] divs:[{div_count}]'.format(
+                plugin_name='bnews-micro',
+                title=content.title,
+                div_count=len(bnews_micro_divs)
+            ))
+
         # We have divs for micro news
         bnews_settings['show'] = True
         for bnews_micro_div in bnews_micro_divs:
@@ -619,6 +634,9 @@ def init_default_config(pelican):
 
     if 'BNEWS_GENERATE_MINIFIED' in pelican.settings:
         bnews_default_settings['generate_minified'] = pelican.settings['BNEWS_GENERATE_MINIFIED']
+
+    if 'BNEWS_DEBUG_PROCESSING' in pelican.settings:
+        bnews_default_settings['debug_processing'] = pelican.settings['BNEWS_DEBUG_PROCESSING']
 
     bnews_settings = copy.deepcopy(bnews_default_settings)
 
