@@ -6,6 +6,7 @@ Author: Toni Heittola (toni.heittola@gmail.com)
 
 """
 
+from builtins import str
 import os
 import shutil
 import logging
@@ -102,7 +103,7 @@ bnews_settings = copy.deepcopy(bnews_default_settings)
 
 def boolean(value):
     """Conversion for yes/no True/False."""
-    if isinstance(value, basestring):
+    if isinstance(value, str):
         if value.lower() in ['yes', 'true', '1', u'yes', u'true', u'1']:
             return True
 
