@@ -308,7 +308,11 @@ def bnews(content):
         # We have page variable set
         bnews_settings['show'] = True
         div_html = generate_listing(settings=bnews_settings)
-        content.bnews = div_html.decode()
+
+        if div_html:
+            content.bnews = div_html.decode()
+        else:
+            content.bnews = None
 
     else:
         content.bnews = None
