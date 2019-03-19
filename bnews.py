@@ -236,10 +236,10 @@ def generate_item(article, settings):
     else:
         article_url = 'javascript:void(0)'
 
-    if 'javascript' in article_url:
+    if article_url and 'javascript' in article_url:
         article_url_target = '_self'
 
-    elif 'http://' in article_url:
+    elif article_url and 'http://' in article_url:
         article_url_target = '_blank'
 
     else:
