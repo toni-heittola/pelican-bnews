@@ -242,6 +242,9 @@ def generate_item(article, settings):
     elif article_url and 'http://' in article_url:
         article_url_target = '_blank'
 
+    elif article_url and 'https://' in article_url:
+        article_url_target = '_blank'
+
     else:
         article_url = settings['site-url'] + '/' + article_url
         article_url_target = '_self'
