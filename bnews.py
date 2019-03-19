@@ -273,8 +273,13 @@ def load_micro_news(source):
 
     if source and os.path.isfile(source):
         try:
-            with open(source, 'r') as field:
-                micro_news_registry = yaml.load(field)
+            from distutils.version import LooseVersion
+            if LooseVersion(str(yaml.__version__)) >= "5.1":
+                with open(source, 'r') as field:
+                    micro_news_registry = yaml.load(field, Loader=yaml.FullLoader)
+            else:
+                with open(source, 'r') as field:
+                    micro_news_registry = yaml.load(field)
 
             if 'data' in micro_news_registry:
                 micro_news_registry = micro_news_registry['data']
