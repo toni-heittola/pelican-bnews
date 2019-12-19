@@ -19,6 +19,7 @@ from jinja2 import Template
 from pelican import signals, contents
 import datetime
 from babel.dates import format_timedelta
+from io import open
 
 logger = logging.getLogger(__name__)
 __version__ = '0.1.0'
@@ -278,10 +279,10 @@ def load_micro_news(source):
         try:
             from distutils.version import LooseVersion
             if LooseVersion(str(yaml.__version__)) >= "5.1":
-                with open(source, 'r') as field:
+                with open(source, 'r', encoding='utf-8') as field:
                     micro_news_registry = yaml.load(field, Loader=yaml.FullLoader)
             else:
-                with open(source, 'r') as field:
+                with open(source, 'r', encoding='utf-8') as field:
                     micro_news_registry = yaml.load(field)
 
             if 'data' in micro_news_registry:
