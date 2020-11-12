@@ -575,8 +575,8 @@ def minify_css_directory(gen, source, target):
                 for current_file in files:
                     if current_file.endswith(".css"):
                         current_file_path = os.path.join(root, current_file)
-                        with open(current_file_path) as css_file:
-                            with open(os.path.join(target_, current_file.replace('.css', '.min.css')), "w") as minified_file:
+                        with open(current_file_path, encoding="utf-8") as css_file:
+                            with open(os.path.join(target_, current_file.replace('.css', '.min.css')), "w", encoding="utf-8") as minified_file:
                                 minified_file.write(rcssmin.cssmin(css_file.read(), keep_bang_comments=True))
 
 
@@ -602,7 +602,7 @@ def minify_js_directory(gen, source, target):
                     if current_file.endswith(".js"):
                         current_file_path = os.path.join(root, current_file)
                         with open(current_file_path, encoding="utf-8") as js_file:
-                            with open(os.path.join(target_, current_file.replace('.js', '.min.js')), "w") as minified_file:
+                            with open(os.path.join(target_, current_file.replace('.js', '.min.js')), "w", encoding="utf-8") as minified_file:
                                 minified_file.write(jsmin(js_file.read()))
 
 
