@@ -1,11 +1,11 @@
 Pelican-bnews - Automatic generation of most recent news article list for Pelican
 ===================================================================================
 
-`pelican-bnews` is an open source Pelican plugin to produce list of most recent articles for content page. The plugin is developed to be used with Markdown content and Bootstrap 3 based template. 
+`pelican-bnews` is an open source Pelican plugin to produce list of most recent articles for content page. The plugin is developed to be used with Markdown content and Bootstrap3 and Bootstrap5 based template. 
 
 **Author**
 
-Toni Heittola (toni.heittola@gmail.com), [GitHub](https://github.com/toni-heittola), [Home page](http://www.cs.tut.fi/~heittolt/)
+Toni Heittola (toni.heittola@gmail.com), [GitHub](https://github.com/toni-heittola), [Home page](https://homepages.tuni.fi/toni.heittola/)
 
 Installation instructions
 =========================
@@ -88,17 +88,18 @@ The parameters can be set in global, and content level. Globally set parameters 
 
 Parameters for the plugin can be set in `pelicanconf.py' with following parameters:
 
-| Parameter                 | Type      | Default       | Description  |
-|---------------------------|-----------|---------------|--------------|
-| BNEWS_HEADER              | String    | Content       | Header text  |
-| BNEWS_HEADER_LINK         | String    | news         | Header link  |
-| BNEWS_TEMPLATE            | Dict of Jinja2 templates |  | Two templates can be set for panel and list  |
-| BNEWS_ITEM_TEMPLATE       | Dict of Jinja2 templates |  | Two templates can be set for panel and list  |
-| BNEWS_PANEL_COLOR         | String    | panel-primary |  CSS class used to color the panel template in the default template. Possible values: panel-default, panel-primary, panel-success, panel-info, panel-warning, panel-danger |
-| BNEWS_CATEGORY_LABEL_CSS  | Dict      |               | Dict with category labels as keys, second level dict with key`label-css`. |
-| BNEWS_MINIFIED           | Boolean   | True          | Do we use minified CSS file. Disable in case of debugging.  |
-| BNEWS_GENERATE_MINIFIED  | Boolean   | False         | CSS file is minified each time, Enable in case of development.   |
-| BNEWS_DEBUG_PROCESSING | Boolean    | False  | Show extra information in when run with `DEBUG=1` |
+| Parameter                 | Type      | Default       | Description                                                                                                                                                               |
+|---------------------------|-----------|---------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| BNEWS_TEMPLATE_MODE       | String    | bs3           | Template mode, possible values bs3, bs5 |
+| BNEWS_HEADER              | String    | Content       | Header text                                                                                                                                                               |
+| BNEWS_HEADER_LINK         | String    | news          | Header link                                                                                                                                                               |
+| BNEWS_TEMPLATE            | Dict of Jinja2 templates |               | Two templates can be set for panel and list                                                                                                                               |
+| BNEWS_ITEM_TEMPLATE       | Dict of Jinja2 templates |               | Two templates can be set for panel and list                                                                                                                               |
+| BNEWS_PANEL_COLOR         | String    | panel-primary | CSS class used to color the panel template in the default template. Possible values: panel-default, panel-primary, panel-success, panel-info, panel-warning, panel-danger |
+| BNEWS_CATEGORY_LABEL_CSS  | Dict      |               | Dict with category labels as keys, second level dict with key`label-css`.                                                                                                 |
+| BNEWS_MINIFIED           | Boolean   | True          | Do we use minified CSS file. Disable in case of debugging.                                                                                                                |
+| BNEWS_GENERATE_MINIFIED  | Boolean   | False         | CSS file is minified each time, Enable in case of development.                                                                                                            |
+| BNEWS_DEBUG_PROCESSING | Boolean    | False         | Show extra information in when run with `DEBUG=1`                                                                                                                         |
 
 ### Content wise parameters
 
