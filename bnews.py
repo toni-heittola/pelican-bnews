@@ -230,8 +230,10 @@ def generate_listing(settings):
 
     html += "\n"
 
-    if settings['template-mode'] == 'bs5':
-        settings['panel-color'] = process_panel_color(settings['panel-color'])
+    settings['panel-color'] = process_panel_color(
+        panel_color=settings['panel-color'],
+        mode=settings['template-mode']
+    )
 
     if count:
         template = Template(settings['template'][settings['template-mode']][settings['mode']].strip('\t\r\n').replace('&gt;', '>').replace('&lt;', '<'))
@@ -367,21 +369,26 @@ def load_micro_news(source):
         logger.warn('`pelican-bnews` failed to load file [' + str(source) + ']')
         return False
 
-def process_panel_color(panel_color):
-    if 'panel-' in panel_color:
-        panel_color = panel_color.replace('panel-', 'bg-')
+def process_panel_color(panel_color, mode='bs3'):
+    if mode == 'bs3':
+        if 'bg-' in panel_color:
+            panel_color = panel_color.replace('bg-', 'panel-')
 
-    if panel_color in ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark',
-                                   'body', 'white', 'transparent']:
-        panel_color = 'bg-' + panel_color
+    elif mode == 'bs5':
+        if 'panel-' in panel_color:
+            panel_color = panel_color.replace('panel-', 'bg-')
 
-    if panel_color == 'bg-default':
-        panel_color = 'bg-light'
+        if panel_color in ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark',
+                                       'body', 'white', 'transparent']:
+            panel_color = 'bg-' + panel_color
 
-    if panel_color not in ['bg-light', 'bg-secondary', 'bg-primary', 'bg-success', 'bg-danger', 'bg-transparent']:
-        panel_color += ' text-white'
-    else:
-        panel_color += ' text-muted'
+        if panel_color == 'bg-default':
+            panel_color = 'bg-light'
+
+        if panel_color not in ['bg-light', 'bg-secondary', 'bg-primary', 'bg-success', 'bg-danger', 'bg-transparent']:
+            panel_color += ' text-white'
+        else:
+            panel_color += ' text-muted'
 
 
     return panel_color
@@ -443,7 +450,10 @@ def bnews(content):
 
             settings['panel-color'] = get_attribute(bnews_div.attrs, 'panel-color', bnews_settings['panel-color'])
             if settings['template-mode'] == 'bs5':
-                settings['panel-color'] = process_panel_color(settings['panel-color'])
+                settings['panel-color'] = process_panel_color(
+                    panel_color=settings['panel-color'],
+                    mode=settings['template-mode']
+                )
 
             settings['show-categories'] = get_attribute(bnews_div.attrs, 'show-categories', bnews_settings['show-categories']) == 'True'
             settings['show-summary'] = get_attribute(bnews_div.attrs, 'show-summary', bnews_settings['show-summary']) == 'True'
@@ -482,7 +492,10 @@ def bnews(content):
 
             settings['panel-color'] = get_attribute(bnews_micro_div.attrs, 'panel-color', bnews_settings['panel-color'])
             if settings['template-mode'] == 'bs5':
-                settings['panel-color'] = process_panel_color(settings['panel-color'])
+                settings['panel-color'] = process_panel_color(
+                    panel_color=settings['panel-color'],
+                    mode=settings['template-mode']
+                )
 
             settings['show-categories'] = get_attribute(bnews_micro_div.attrs, 'show-categories', bnews_settings['show-categories']) == 'True'
             settings['show-summary'] = get_attribute(bnews_micro_div.attrs, 'show-summary', bnews_settings['show-summary']) == 'True'
