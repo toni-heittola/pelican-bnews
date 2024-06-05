@@ -25,65 +25,128 @@ logger = logging.getLogger(__name__)
 __version__ = '0.1.0'
 
 bnews_default_settings = {
+    'template-mode': 'bs3',
+    'mode': 'panel',
     'header': 'News',
     'header-link': 'news',
     'panel-color': 'panel-default',
-    'mode': 'panel',
     'template': {
-        'panel': """
-            <div class="panel {{ panel_color }} hidden-print">
-              <div class="panel-heading">
-                <h3 class="panel-title"><a href="{{ site_url }}/{{header_link}}">{{header}}</a></h3>
-              </div>
-              <ul class="bnews-container list-group">
-              {{news_list}}
-              </ul>
-            </div>
-        """,
-        'list': """
-            <h3 class="section-heading text-center"><a href="{{ site_url }}/{{header_link}}">{{header}}</a></h3>
-            <div class="list-group bnews-container">
-            {{news_list}}
-            </div>
-        """},
+        'bs3': {
+            'panel': """
+                <div class="panel {{ panel_color }} hidden-print">
+                  <div class="panel-heading">
+                    <h3 class="panel-title"><a href="{{ site_url }}/{{header_link}}">{{header}}</a></h3>
+                  </div>
+                  <ul class="bnews-container list-group">
+                  {{news_list}}
+                  </ul>
+                </div>
+                """,
+            'list': """
+                <h3 class="section-heading text-center"><a href="{{ site_url }}/{{header_link}}">{{header}}</a></h3>
+                <div class="list-group bnews-container">
+                {{news_list}}
+                </div>
+                """
+        },
+        'bs5': {
+            'panel': """
+                <div class="card hidden-print">
+                  <h5 class="card-header {{ panel_color }} ">                    
+                    <a class="link-underline link-underline-opacity-0" href="{{ site_url }}/{{header_link}}">{{header}}</a>
+                    </h5>
+                                   
+                  <div class="bnews-container list-group list-group-flush">{{news_list}}</div>
+           
+                </div>            
+            """,
+            'list': """
+                <h3 class="section-heading text-center"><a class="link-underline link-underline-opacity-0" href="{{ site_url }}/{{header_link}}">{{header}}</a></h3>
+                <div class="list-group bnews-container mb-3">
+                {{news_list}}
+                </div>
+            """
+        }
+    },
+
     'item-template': {
-        'panel': """
-            <a class="list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
-            <div class="row">
-                <div class="col-md-12 col-sm-12"><h5 class="list-group-item-heading">{{article_title}}</h5></div>
-                <div class="col-md-12 col-sm-12">
-                <p class="list-group-item-text text-muted">{{article_category}}
-                {% if article_date %}<small><span class="bnews-time" datetime="{{article_date}}"></span><small>{% endif %}
-                </p>
+        'bs3': {
+            'panel': """
+                <a class="list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12"><h5 class="list-group-item-heading">{{article_title}}</h5></div>
+                    <div class="col-md-12 col-sm-12">
+                    <p class="list-group-item-text text-muted">{{article_category}}
+                    {% if article_date %}<small><span class="bnews-time" datetime="{{article_date}}"></span><small>{% endif %}
+                    </p>
+                    </div>
                 </div>
-            </div>
-            </a>
-        """,
-        'list': """
-            <a class="list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
-            <div class="row">
-                <div class="col-md-12 col-sm-12">
-                    <h4 class="list-group-item-heading">
-                    {% if article_date and not article_category%}
-                    <span class="bnews-time pull-right text-muted" datetime="{{article_date}}"></span>
+                </a>
+                """,
+            'list': """
+                <a class="list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                        <h4 class="list-group-item-heading">
+                        {% if article_date and not article_category%}
+                        <span class="bnews-time pull-right text-muted" datetime="{{article_date}}"></span>
+                        {% endif %}
+                        {{article_title}}
+                        </h4>
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                    <p class="list-group-item-text text-muted">
+                    {{article_category}}
+                    {% if article_category and article_date %}
+                    <span class="bnews-time pull-right" datetime="{{article_date}}"></span>
                     {% endif %}
-                    {{article_title}}
-                    </h4>
+                    </p>
+                    </div>
+                    {% if article_summary %}
+                    <div class="col-md-12 col-sm-12 bnews-summary">{{article_summary}}</div>
+                    {% endif %}
                 </div>
-                <div class="col-md-12 col-sm-12">
-                <p class="list-group-item-text text-muted">
-                {{article_category}}
-                {% if article_category and article_date %}
-                <span class="bnews-time pull-right" datetime="{{article_date}}"></span>
-                {% endif %}
+                </a>
+                """
+        },
+        'bs5': {
+            'panel': """
+            <a class="bnews-list-item list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
+                <h5 class="list-group-item-heading">{{article_title}}</h5>
+                {% if article_date %}
+                <p class="list-group-item-text text-muted">{{article_category}}
+                    <span class="bnews-time" datetime="{{article_date}}"></span>
                 </p>
-                </div>
-                {% if article_summary %}
-                <div class="col-md-12 col-sm-12 bnews-summary">{{article_summary}}</div>
                 {% endif %}
-            </div>
             </a>
-        """},
+            """,
+            'list': """
+                <a class="bnews-list-item list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                        <h5 class="list-group-item-heading">
+                        {% if article_date and not article_category%}
+                        <span class="bnews-time pull-right text-muted" datetime="{{article_date}}"></span>
+                        {% endif %}
+                        {{article_title}}
+                        </h5>
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                    <p class="list-group-item-text text-muted">
+                    {{article_category}}
+                    {% if article_category and article_date %}
+                    <span class="bnews-time pull-right" datetime="{{article_date}}"></span>
+                    {% endif %}
+                    </p>
+                    </div>
+                    {% if article_summary %}
+                    <div class="col-md-12 col-sm-12 bnews-summary">{{article_summary}}</div>
+                    {% endif %}
+                </div>
+                </a>            
+            """
+        }
+    },
     'category': None,
     'count': 4,
     'show': False,
@@ -167,8 +230,11 @@ def generate_listing(settings):
 
     html += "\n"
 
+    if settings['template-mode'] == 'bs5':
+        settings['panel-color'] = process_panel_color(settings['panel-color'])
+
     if count:
-        template = Template(settings['template'][settings['mode']].strip('\t\r\n').replace('&gt;', '>').replace('&lt;', '<'))
+        template = Template(settings['template'][settings['template-mode']][settings['mode']].strip('\t\r\n').replace('&gt;', '>').replace('&lt;', '<'))
         div_html = BeautifulSoup(template.render(
             news_list=html,
             header=settings['header'],
@@ -259,7 +325,7 @@ def generate_item(article, settings):
     else:
         article_title = None
 
-    template = Template(settings['item-template'][settings['mode']].strip('\t\r\n').replace('&gt;', '>').replace('&lt;', '<'))
+    template = Template(settings['item-template'][settings['template-mode']][settings['mode']].strip('\t\r\n').replace('&gt;', '>').replace('&lt;', '<'))
     html = BeautifulSoup(template.render(
         site_url=settings['site-url'],
         article_url=article_url,
@@ -301,6 +367,24 @@ def load_micro_news(source):
         logger.warn('`pelican-bnews` failed to load file [' + str(source) + ']')
         return False
 
+def process_panel_color(panel_color):
+    if 'panel-' in panel_color:
+        panel_color = panel_color.replace('panel-', 'bg-')
+
+    if panel_color in ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark',
+                                   'body', 'white', 'transparent']:
+        panel_color = 'bg-' + panel_color
+
+    if panel_color == 'bg-default':
+        panel_color = 'bg-light'
+
+    if panel_color not in ['bg-light', 'bg-secondary', 'bg-primary', 'bg-success', 'bg-danger', 'bg-transparent']:
+        panel_color += ' text-white'
+    else:
+        panel_color += ' text-muted'
+
+
+    return panel_color
 
 def bnews(content):
     """
@@ -358,6 +442,9 @@ def bnews(content):
                 settings['count'] = int(settings['count'])
 
             settings['panel-color'] = get_attribute(bnews_div.attrs, 'panel-color', bnews_settings['panel-color'])
+            if settings['template-mode'] == 'bs5':
+                settings['panel-color'] = process_panel_color(settings['panel-color'])
+
             settings['show-categories'] = get_attribute(bnews_div.attrs, 'show-categories', bnews_settings['show-categories']) == 'True'
             settings['show-summary'] = get_attribute(bnews_div.attrs, 'show-summary', bnews_settings['show-summary']) == 'True'
 
@@ -394,6 +481,9 @@ def bnews(content):
                 settings['count'] = int(settings['count'])
 
             settings['panel-color'] = get_attribute(bnews_micro_div.attrs, 'panel-color', bnews_settings['panel-color'])
+            if settings['template-mode'] == 'bs5':
+                settings['panel-color'] = process_panel_color(settings['panel-color'])
+
             settings['show-categories'] = get_attribute(bnews_micro_div.attrs, 'show-categories', bnews_settings['show-categories']) == 'True'
             settings['show-summary'] = get_attribute(bnews_micro_div.attrs, 'show-summary', bnews_settings['show-summary']) == 'True'
 
@@ -513,7 +603,7 @@ def move_resources(gen):
             os.makedirs(os.path.join(gen.output_path, 'theme', 'js'))
 
         for path in plugin_paths:
-            css_source = os.path.join(path, 'pelican-bnews', 'css.min', 'bnews.min.css')
+            css_source = os.path.join(path, 'pelican-bnews', 'css.min', 'bnews_'+bnews_settings['template-mode']+'.min.css')
             if os.path.isfile(css_source):
                 shutil.copyfile(css_source, css_target)
 
@@ -537,7 +627,7 @@ def move_resources(gen):
         js_target_1 = os.path.join(gen.output_path, 'theme', 'js', 'timeago.js')
         js_target_2 = os.path.join(gen.output_path, 'theme', 'js', 'bnews.js')
         for path in plugin_paths:
-            css_source = os.path.join(path, 'pelican-bnews', 'css', 'bnews.css')
+            css_source = os.path.join(path, 'pelican-bnews', 'css', 'bnews_'+bnews_settings['template-mode']+'.css')
 
             if os.path.isfile(css_source):
                 shutil.copyfile(css_source, css_target)
@@ -630,6 +720,9 @@ def init_default_config(pelican):
 
     if 'BNEWS_HEADER_LINK' in pelican.settings:
         bnews_default_settings['header-link'] = pelican.settings['BNEWS_HEADER_LINK']
+
+    if 'BNEWS_TEMPLATE_MODE' in pelican.settings:
+        bnews_default_settings['template-mode'] = pelican.settings['BNEWS_TEMPLATE_MODE']
 
     if 'BNEWS_TEMPLATE' in pelican.settings:
         bnews_default_settings['template'].update(pelican.settings['BNEWS_TEMPLATE'])
