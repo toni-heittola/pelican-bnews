@@ -54,14 +54,14 @@ bnews_default_settings = {
                 <div class="card hidden-print">
                   <h5 class="card-header {{ panel_color }} ">                    
                     <a class="link-underline link-underline-opacity-0" href="{{ site_url }}/{{header_link}}">{{header}}</a>
-                    </h5>
-                                   
-                  <div class="bnews-container list-group list-group-flush">{{news_list}}</div>
-           
+                  </h5>                                   
+                  <div class="bnews-container list-group list-group-flush">{{news_list}}</div>           
                 </div>            
             """,
             'list': """
-                <h3 class="section-heading text-center"><a class="link-underline link-underline-opacity-0" href="{{ site_url }}/{{header_link}}">{{header}}</a></h3>
+                <h3 class="section-heading text-center">
+                    <a class="link-underline link-underline-opacity-0" href="{{ site_url }}/{{header_link}}">{{header}}</a>
+                </h3>
                 <div class="list-group bnews-container mb-3">
                 {{news_list}}
                 </div>
@@ -111,14 +111,14 @@ bnews_default_settings = {
         },
         'bs5': {
             'panel': """
-            <a class="bnews-list-item list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
-                <h5 class="list-group-item-heading">{{article_title}}</h5>
-                {% if article_date %}
-                <p class="list-group-item-text text-muted">{{article_category}}
-                    <span class="bnews-time" datetime="{{article_date}}"></span>
-                </p>
-                {% endif %}
-            </a>
+                <a class="bnews-list-item list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
+                    <h5 class="list-group-item-heading">{{article_title}}</h5>
+                    {% if article_date %}
+                    <p class="list-group-item-text text-muted">{{article_category}}
+                        <span class="bnews-time" datetime="{{article_date}}"></span>
+                    </p>
+                    {% endif %}
+                </a>
             """,
             'list': """
                 <a class="bnews-list-item list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
@@ -369,6 +369,7 @@ def load_micro_news(source):
         logger.warn('`pelican-bnews` failed to load file [' + str(source) + ']')
         return False
 
+
 def process_panel_color(panel_color, mode='bs3'):
     if mode == 'bs3':
         if 'bg-' in panel_color:
@@ -392,6 +393,7 @@ def process_panel_color(panel_color, mode='bs3'):
 
 
     return panel_color
+
 
 def bnews(content):
     """
