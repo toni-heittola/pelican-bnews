@@ -371,28 +371,40 @@ def load_micro_news(source):
 
 
 def process_panel_color(panel_color, mode='bs3'):
+    text_color = ''
+
     if mode == 'bs3':
         if 'bg-' in panel_color:
             panel_color = panel_color.replace('bg-', 'panel-')
 
     elif mode == 'bs5':
-        if 'panel-' in panel_color:
+        # Convert bs3 colors
+        if panel_color.startswith('panel-'):
             panel_color = panel_color.replace('panel-', 'bg-')
+            if 'default' not in panel_color and '-subtle' not in panel_color:
+                panel_color += '-subtle'
 
-        if panel_color in ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark',
-                                       'body', 'white', 'transparent']:
-            panel_color = 'bg-' + panel_color
+        elif panel_color in ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark', 'body', 'white', 'transparent']:
+            panel_color = 'bg-' + panel_color + '-subtle'
 
         if panel_color == 'bg-default':
-            panel_color = 'bg-light'
+            panel_color = 'bg-secondary-subtle'
 
-        if panel_color not in ['bg-light', 'bg-secondary', 'bg-primary', 'bg-danger', 'bg-transparent']:
-            panel_color += ' text-white'
-        else:
-            panel_color += ' text-muted'
+        # Determine the text color
+        # If subtle colors are used, use matching emphasis text color
+        if '-subtle' in panel_color and 'text-' not in panel_color:
+            text_color = ' ' + panel_color.replace('bg-', 'text-').replace('-subtle', '-emphasis')
 
+        # otherwise handcraft colors
+        elif '-subtle' not in panel_color:
+            if panel_color in ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-dark', 'bg-black']:
+                text_color = ' text-white'
+            elif panel_color in ['bg-warning', 'bg-info', 'bg-light']:
+                text_color = ' text-dark'
+            else:
+                text_color = ' text-muted'
 
-    return panel_color
+    return panel_color + text_color
 
 
 def bnews(content):
