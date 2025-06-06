@@ -386,7 +386,7 @@ def process_panel_color(panel_color, mode='bs3'):
         if panel_color == 'bg-default':
             panel_color = 'bg-light'
 
-        if panel_color not in ['bg-light', 'bg-secondary', 'bg-primary', 'bg-success', 'bg-danger', 'bg-transparent']:
+        if panel_color not in ['bg-light', 'bg-secondary', 'bg-primary', 'bg-danger', 'bg-transparent']:
             panel_color += ' text-white'
         else:
             panel_color += ' text-muted'
