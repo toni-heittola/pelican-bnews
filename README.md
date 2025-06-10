@@ -80,6 +80,8 @@ There is two layout modes available for both of these: `panel` and `list`.
 
 Optionally article entries can be replaced with micro news read from yaml-file (use `bnews-micro` divs and `data-source` parameter). Micro news is intended for minimal news where only summary is shown and usually associated url lead to external site.   
 
+Use `bnews-combo` divs (with `data-source` parameter) to merge micro news and Pelican news articles into one list. 
+
 ## Parameters
 
 The parameters can be set in global, and content level. Globally set parameters are are first overwritten content meta data, and finally with div parameters.
@@ -166,7 +168,10 @@ Example micro news listing:
 
     <div class="bnews-micro" source="content/data/micro_news.yaml" data-category="category1" data-mode="list" data-header="Recent News" data-show-summary="True"></div>
         
-        
+Example combo news listing:
+
+    <div class="bnews-combo" source="content/data/micro_news.yaml" data-category="category1" data-mode="list" data-header="Recent News" data-show-summary="True"></div>
+       
 Source file:
 
     - title: Test title1

@@ -20,6 +20,7 @@ from pelican import signals, contents
 import datetime
 from babel.dates import format_timedelta
 from io import open
+from pelican.utils import set_date_tzinfo
 
 logger = logging.getLogger(__name__)
 __version__ = '0.1.0'
@@ -68,7 +69,6 @@ bnews_default_settings = {
             """
         }
     },
-
     'item-template': {
         'bs3': {
             'panel': """
@@ -122,27 +122,29 @@ bnews_default_settings = {
             """,
             'list': """
                 <a class="bnews-list-item list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
-                <div class="row">
-                    <div class="col-md-12 col-sm-12">
-                        <h5 class="list-group-item-heading">
-                        {% if article_date and not article_category%}
-                        <span class="bnews-time pull-right text-muted" datetime="{{article_date}}"></span>
-                        {% endif %}
-                        {{article_title}}
-                        </h5>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5 class="list-group-item-heading">
+                            {% if article_date and not article_category%}
+                                <span class="bnews-time pull-right text-muted" datetime="{{article_date}}"></span>
+                            {% endif %}
+                            {{article_title}}
+                            </h5>
+                        </div>
                     </div>
-                    <div class="col-md-12 col-sm-12">
-                    <p class="list-group-item-text text-muted">
-                    {{article_category}}
-                    {% if article_category and article_date %}
-                    <span class="bnews-time pull-right" datetime="{{article_date}}"></span>
-                    {% endif %}
-                    </p>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p class="list-group-item-text text-muted">{{article_category}}
+                            {% if article_category and article_date %}
+                                <span class="bnews-time pull-right" datetime="{{article_date}}"></span>
+                            {% endif %}
+                            </p>
+                        </div>
                     </div>
-                    {% if article_summary %}
-                    <div class="col-md-12 col-sm-12 bnews-summary">{{article_summary}}</div>
-                    {% endif %}
-                </div>
+                    <div class="row">
+                        {% if article_summary %}<div class="col-md-12 bnews-summary">{{article_summary}}</div>{% endif %}
+                    </div>                        
+                    </div>
                 </a>            
             """
         }
@@ -170,13 +172,10 @@ def boolean(value):
     if isinstance(value, str):
         if value.lower() in ['yes', 'true', '1', u'yes', u'true', u'1']:
             return True
-
         else:
             return False
-
     elif isinstance(value, bool):
         return value
-
     else:
         return None
 
@@ -433,6 +432,7 @@ def bnews(content):
 
     bnews_divs = soup.find_all('div', class_='bnews')
     bnews_micro_divs = soup.find_all('div', class_='bnews-micro')
+    bnews_combo_divs = soup.find_all('div', class_='bnews-combo')
 
     if bnews_divs:
         if bnews_settings['debug_processing']:
@@ -454,9 +454,7 @@ def bnews(content):
             if settings['category']:
                 settings['category'] = settings['category'].split(',')
 
-            settings['shorten-category-label'] = boolean(
-                get_attribute(bnews_div.attrs, 'shorten-category-label', bnews_settings['shorten-category-label'])
-            )
+            settings['shorten-category-label'] = boolean(get_attribute(bnews_div.attrs, 'shorten-category-label', bnews_settings['shorten-category-label']))
 
             settings['count'] = get_attribute(bnews_div.attrs, 'count', bnews_settings['count'])
             if settings['count']:
@@ -513,11 +511,76 @@ def bnews(content):
 
             settings['show-categories'] = get_attribute(bnews_micro_div.attrs, 'show-categories', bnews_settings['show-categories']) == 'True'
             settings['show-summary'] = get_attribute(bnews_micro_div.attrs, 'show-summary', bnews_settings['show-summary']) == 'True'
-
             settings['articles'] = load_micro_news(settings['data_source'])
-
             div_html = generate_listing(settings=settings)
             bnews_micro_div.replaceWith(div_html)
+
+    if bnews_combo_divs:
+        if bnews_settings['debug_processing']:
+            logger.debug(msg='[{plugin_name}] title:[{title}] divs:[{div_count}]'.format(
+                plugin_name='bnews-micro',
+                title=content.title,
+                div_count=len(bnews_micro_divs)
+            ))
+
+        # We have divs for micro news
+        bnews_settings['show'] = True
+        for bnews_combo_div in bnews_combo_divs:
+            settings = copy.deepcopy(bnews_settings)
+            settings['data_source'] = get_attribute(bnews_combo_div.attrs, 'source', None)
+            settings['mode'] = get_attribute(bnews_combo_div.attrs, 'mode', bnews_settings['mode'])
+            settings['header'] = get_attribute(bnews_combo_div.attrs, 'header', bnews_settings['header'])
+            settings['header-link'] = get_attribute(bnews_combo_div.attrs, 'header-link', bnews_settings['header-link'])
+            settings['category'] = get_attribute(bnews_combo_div.attrs, 'category', bnews_settings['category'])
+
+            if settings['category']:
+                settings['category'] = settings['category'].split(',')
+
+            settings['shorten-category-label'] = boolean(
+                get_attribute(bnews_combo_div.attrs, 'shorten-category-label', bnews_settings['shorten-category-label'])
+            )
+
+            settings['count'] = get_attribute(bnews_combo_div.attrs, 'count', bnews_settings['count'])
+            if settings['count']:
+                settings['count'] = int(settings['count'])
+
+            settings['panel-color'] = get_attribute(bnews_combo_div.attrs, 'panel-color', bnews_settings['panel-color'])
+            if settings['template-mode'] == 'bs5':
+                settings['panel-color'] = process_panel_color(
+                    panel_color=settings['panel-color'],
+                    mode=settings['template-mode']
+                )
+
+            settings['show-categories'] = get_attribute(bnews_combo_div.attrs, 'show-categories', bnews_settings['show-categories']) == 'True'
+            settings['show-summary'] = get_attribute(bnews_combo_div.attrs, 'show-summary', bnews_settings['show-summary']) == 'True'
+            micro_articles = load_micro_news(settings['data_source'])
+            pelican_articles = bnews_settings['articles']
+            all_articles = micro_articles
+
+            # manage timezone
+            #default_timezone = settings.get("TIMEZONE", "UTC")
+            #timezone = getattr(self, "timezone", default_timezone)
+            #self.timezone = ZoneInfo(timezone)
+            #from IPython import embed
+            #embed()
+            for article_id, article in enumerate(micro_articles):
+                micro_articles[article_id]['date'] = set_date_tzinfo(micro_articles[article_id]['date'], bnews_settings['timezone'])
+
+            for article_id, article in enumerate(pelican_articles):
+                all_articles.append({
+                    'title': article.title,
+                    'date': article.date,
+                    'summary': article.summary,
+                    'url': article.url,
+                    'category': article.category.name
+                })
+
+            all_articles.sort(key=lambda item: item['date'], reverse=True)
+
+            settings['articles'] = all_articles
+
+            div_html = generate_listing(settings=settings)
+            bnews_combo_div.replaceWith(div_html)
 
     if bnews_settings['show']:
 
@@ -774,6 +837,9 @@ def init_default_config(pelican):
 
     if 'BNEWS_DEBUG_PROCESSING' in pelican.settings:
         bnews_default_settings['debug_processing'] = pelican.settings['BNEWS_DEBUG_PROCESSING']
+
+    # Manage timezone
+    bnews_default_settings['timezone'] = pelican.settings.get("TIMEZONE", "UTC")
 
     bnews_settings = copy.deepcopy(bnews_default_settings)
 
