@@ -121,31 +121,38 @@ bnews_default_settings = {
                 </a>
             """,
             'list': """
-                <a class="bnews-list-item list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
+                
                     <div class="row">
                         <div class="col-md-12">
                             <h5 class="list-group-item-heading">
                             {% if article_date and not article_category%}
                                 <span class="bnews-time pull-right text-muted" datetime="{{article_date}}"></span>
                             {% endif %}
-                            {{article_title}}
+                            <a class="bnews-list-item list-group-item bnews-title" href="{{ article_url}}" target="{{ article_url_target }}">{{article_title}}</a>
                             </h5>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <p class="list-group-item-text text-muted">{{article_category}}
-                            {% if article_category and article_date %}
-                                <span class="bnews-time pull-right" datetime="{{article_date}}"></span>
-                            {% endif %}
+                            <p class="list-group-item-text text-muted">
+                                {{article_category}}
+                                {% if article_category and article_date %}
+                                    <span class="bnews-time pull-right" datetime="{{article_date}}"></span>
+                                {% endif %}
                             </p>
                         </div>
                     </div>
                     <div class="row">
-                        {% if article_summary %}<div class="col-md-12 bnews-summary">{{article_summary}}</div>{% endif %}
+                        {% if article_summary %}
+                        <div class="col-md-12 bnews-summary">
+                            <a class="bnews-list-item list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
+                            {{article_summary}}
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>                        
                     </div>
-                </a>            
+                      
             """
         }
     },
