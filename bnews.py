@@ -543,18 +543,17 @@ def bnews(content):
                 ]
             }
 
+        if 'scripts' not in content.metadata:
+            content.metadata[u'scripts'] = []
+
         if u'styles' not in content.metadata:
             content.metadata[u'styles'] = []
 
         for element in html_elements['js_include']:
-            if 'scripts' not in content.metadata:
-                content.metadata[u'scripts'] = []
             if element not in content.metadata[u'scripts']:
                 content.metadata[u'scripts'].append(element)
 
         for element in html_elements['css_include']:
-            if 'styles' not in content.metadata:
-                content.metadata[u'styles'] = []
             if element not in content.metadata[u'styles']:
                 content.metadata[u'styles'].append(element)
 
