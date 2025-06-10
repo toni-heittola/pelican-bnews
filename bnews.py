@@ -207,6 +207,7 @@ def generate_listing(settings):
     html = "\n"
 
     for article_id, article in enumerate(settings['articles']):
+
         if count < settings['count']:
             if settings['category']:
                 if hasattr(article, 'category'):
@@ -216,11 +217,7 @@ def generate_listing(settings):
                     category = article['category']
 
                 if category in settings['category']:
-                    html += generate_item(
-                        article=article,
-                        settings=settings
-                    ) + "\n"
-
+                    html += generate_item(article=article,settings=settings) + "\n"
                     count += 1
 
             else:
@@ -530,6 +527,16 @@ def bnews(content):
                 div_count=len(bnews_micro_divs)
             ))
 
+        pelican_articles = copy.deepcopy(bnews_settings['articles'])
+        for article_id, article in enumerate(pelican_articles):
+            pelican_articles[article_id] = {
+                'title': article.title,
+                'date': article.date,
+                'summary': article.summary,
+                'url': article.url,
+                'category': article.category.name
+            }
+
         # We have divs for micro news
         bnews_settings['show'] = True
         for bnews_combo_div in bnews_combo_divs:
@@ -560,28 +567,13 @@ def bnews(content):
 
             settings['show-categories'] = get_attribute(bnews_combo_div.attrs, 'show-categories', bnews_settings['show-categories']) == 'True'
             settings['show-summary'] = get_attribute(bnews_combo_div.attrs, 'show-summary', bnews_settings['show-summary']) == 'True'
-            micro_articles = load_micro_news(settings['data_source'])
-            pelican_articles = bnews_settings['articles']
-            all_articles = micro_articles
 
-            # manage timezone
-            #default_timezone = settings.get("TIMEZONE", "UTC")
-            #timezone = getattr(self, "timezone", default_timezone)
-            #self.timezone = ZoneInfo(timezone)
-            #from IPython import embed
-            #embed()
+            micro_articles = load_micro_news(settings['data_source'])
             for article_id, article in enumerate(micro_articles):
                 micro_articles[article_id]['date'] = set_date_tzinfo(micro_articles[article_id]['date'], bnews_settings['timezone'])
 
-            for article_id, article in enumerate(pelican_articles):
-                all_articles.append({
-                    'title': article.title,
-                    'date': article.date,
-                    'summary': article.summary,
-                    'url': article.url,
-                    'category': article.category.name
-                })
-
+            all_articles = micro_articles
+            all_articles += copy.deepcopy(pelican_articles)
             all_articles.sort(key=lambda item: item['date'], reverse=True)
 
             settings['articles'] = all_articles
