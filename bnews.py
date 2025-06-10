@@ -120,39 +120,32 @@ bnews_default_settings = {
                     {% endif %}
                 </a>
             """,
-            'list': """
-                
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h5 class="list-group-item-heading">
-                            {% if article_date and not article_category%}
-                                <span class="bnews-time pull-right text-muted" datetime="{{article_date}}"></span>
-                            {% endif %}
-                            <a class="bnews-list-item list-group-item bnews-title" href="{{ article_url}}" target="{{ article_url_target }}">{{article_title}}</a>
-                            </h5>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <p class="list-group-item-text text-muted">
-                                {{article_category}}
-                                {% if article_category and article_date %}
-                                    <span class="bnews-time pull-right" datetime="{{article_date}}"></span>
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        {% if article_summary %}
-                        <div class="col-md-12 bnews-summary">
-                            <a class="bnews-list-item list-group-item" href="{{ article_url}}" target="{{ article_url_target }}">
-                            {{article_summary}}
-                            </a>
-                        </div>
+            'list': """                
+                <div class="d-flex flex-column p-0 m-0">
+                    <div class="p-0 m-0">
+                        <h5 class="list-group-item-heading">
+                        {% if article_date and not article_category%}
+                            <span class="bnews-time pull-right text-muted pt-1" datetime="{{article_date}}"></span>
                         {% endif %}
-                    </div>                        
+                        <a class="bnews-list-item list-group-item bnews-title" href="{{ article_url}}" target="{{ article_url_target }}">{{article_title}}</a>
+                        </h5>
                     </div>
-                      
+                    {% if article_category %}
+                    <div class="p-0 m-0">
+                        <p class="list-group-item-text text-muted">
+                            {{article_category}}
+                            {% if article_category and article_date %}
+                                <span class="bnews-time pull-right" datetime="{{article_date}}"></span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                    {% if article_summary %}
+                    <div class="p-0 m-0 bnews-summary">
+                        {{article_summary}}                        
+                    </div>
+                    {% endif %}
+                </div>
             """
         }
     },
