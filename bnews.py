@@ -703,13 +703,16 @@ def move_resources(gen):
             if os.path.isfile(css_target) and os.path.isfile(js_target_1) and os.path.isfile(js_target_2):
                 break
     else:
-        css_target = os.path.join(gen.output_path, 'theme', 'css', 'bnews.css')
-
         if not os.path.exists(os.path.join(gen.output_path, 'theme', 'css')):
             os.makedirs(os.path.join(gen.output_path, 'theme', 'css'))
 
+        if not os.path.exists(os.path.join(gen.output_path, 'theme', 'js')):
+            os.makedirs(os.path.join(gen.output_path, 'theme', 'js'))
+
+        css_target = os.path.join(gen.output_path, 'theme', 'css', 'bnews.css')
         js_target_1 = os.path.join(gen.output_path, 'theme', 'js', 'timeago.js')
         js_target_2 = os.path.join(gen.output_path, 'theme', 'js', 'bnews.js')
+
         for path in plugin_paths:
             css_source = os.path.join(path, 'pelican-bnews', 'css', 'bnews_'+bnews_settings['template-mode']+'.css')
 
