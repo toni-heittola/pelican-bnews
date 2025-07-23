@@ -676,16 +676,15 @@ def move_resources(gen):
             minify_css_directory(gen=gen, source='css', target='css.min')
             minify_js_directory(gen=gen, source='js', target='js.min')
 
-        css_target = os.path.join(gen.output_path, 'theme', 'css', 'bnews.min.css')
-
         if not os.path.exists(os.path.join(gen.output_path, 'theme', 'css')):
             os.makedirs(os.path.join(gen.output_path, 'theme', 'css'))
 
-        js_target_1 = os.path.join(gen.output_path, 'theme', 'js', 'timeago.min.js')
-        js_target_2 = os.path.join(gen.output_path, 'theme', 'js', 'bnews.min.js')
-
         if not os.path.exists(os.path.join(gen.output_path, 'theme', 'js')):
             os.makedirs(os.path.join(gen.output_path, 'theme', 'js'))
+
+        css_target = os.path.join(gen.output_path, 'theme', 'css', 'bnews.min.css')
+        js_target_1 = os.path.join(gen.output_path, 'theme', 'js', 'timeago.min.js')
+        js_target_2 = os.path.join(gen.output_path, 'theme', 'js', 'bnews.min.js')
 
         for path in plugin_paths:
             css_source = os.path.join(path, 'pelican-bnews', 'css.min', 'bnews_'+bnews_settings['template-mode']+'.min.css')
